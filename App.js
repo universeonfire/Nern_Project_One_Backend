@@ -1,11 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const placesRoutes = require("./Routes/PlacesRoutes");
 const usersRoutes = require("./Routes/UsersRoutes");
 const HttpError = require("./Models/HttpErrors");
+const DbCredentials = require("./DatabaseCredentials/DbCredentials");
 
 const app = express();
+const db_url = DbCredentials.createUrl();
+
 app.use(bodyParser.json());
 
 app.use("/api/places",placesRoutes);
@@ -26,4 +30,14 @@ app.use((error,req,res,next)=>{
     
 });
 
-app.listen(5000);
+
+mongoose.set('useUnifiedTopology', true);
+mongoose.set('useNewUrlParser', true);
+mongoose
+    .connect(db_url)
+    .then(()=>{
+        app.listen(5000);
+    })
+    .catch(error => {
+        console.log("Error has occured while connecting db")
+    });
